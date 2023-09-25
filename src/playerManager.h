@@ -12,6 +12,7 @@ private:
 
 public:
     PlayerManager();
+    ~PlayerManager();
     PlayerManager(int);
 
     // void addPlayer(Player );
