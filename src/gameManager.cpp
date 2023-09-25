@@ -28,14 +28,12 @@ GameManager::GameManager(vector<Player> &pl)
         {
             Team1.emplace_back(p);
             p.setTeam("Team1");
-            cout << "Set on team1 : " << p.getTeam() << "\n";
             team = false;
         }
         else
         {
             Team2.emplace_back(p);
             p.setTeam("Team2");
-            cout << "Set on team2: " << p.getTeam() << "\n";
             team = true;
         }
     }

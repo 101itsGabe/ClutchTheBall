@@ -25,7 +25,6 @@ using namespace std;
 
 void renderTile(SDL_Renderer *renderer, Tile *tile, int windowWidth, int windowHeight, int tileLen)
 {
-
     int tileSize = std::min(windowWidth, windowHeight) / 11;
     int gridWidth = 15 * tileSize; // Total width of the grid
     int gridHeight = 9 * tileSize; // Total height of the grid
@@ -38,7 +37,6 @@ void renderTile(SDL_Renderer *renderer, Tile *tile, int windowWidth, int windowH
     int tileY = tile->getY() * tileSize + middleY;
     // This is going to calc where the exact tile will go on screen
     // This might have to be just the pixels like 64 or something
-
     tile->setCoords(tileX, tileY, tileSize, tileSize); // Set the color for the Tile
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Rect tileRect = {tileX, tileY, tileSize, tileSize};
@@ -158,10 +156,14 @@ bool InitSDL()
 
     PlayerManager PM(6);
     GameManager GM(PM.getPlayerList());
-    for (Player &p : PM.getPlayerList())
-    {
-        cout << "After GM: " << p.getTeam() << endl;
-    }
+
+        // Window
+    int windowWidth, windowHeight;
+
+    vector<Tile>* tiles;
+
+    TileManager TM;
+    tiles = TM.getTileList();
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -224,13 +226,8 @@ bool InitSDL()
     {
         printf("Failed to load image. Error: %s\n", IMG_GetError());
     }
-    // Window
-    int windowWidth, windowHeight;
 
-    vector<Tile> tiles;
 
-    TileManager TM;
-    tiles = TM.getTileList();
 
     random_device rd;
     mt19937 eng(rd());
@@ -255,6 +252,7 @@ bool InitSDL()
     bool clicked = false;
     bool menu = false;
     bool highlight = true;
+    bool players = true;
     Player *clickedPlayer = nullptr;
     while (!quit)
     {
@@ -274,9 +272,9 @@ bool InitSDL()
             GM.RenderScore(renderer, font, windowWidth, windowHeight);
             // cout << "Before Render Shot" << endl;
             //  GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer);
-            for (Tile &tile : TM.getTileList())
+            for (Tile &tile : *tiles)
             {
-                renderTile(renderer, &tile, windowWidth, windowHeight, TM.getTileList().size());
+                renderTile(renderer, &tile, windowWidth, windowHeight, tiles->size());
                 renderText(renderer, &tile, font, GM.check3(tile.getTileId()));
                 if (tile.getMouseCheck(mouseX, mouseY) && highlight && !menu)
                 {
@@ -285,9 +283,6 @@ bool InitSDL()
                         curTile = &tile;
                 }
             }
-
-            PM.RenderPlayers(renderer, TM.getTileList());
-
             // cout << curTile->getTileId() << endl;
 
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
@@ -310,6 +305,7 @@ bool InitSDL()
                 }
             }
 
+            PM.RenderPlayers(renderer,tiles);
             if (menu)
             {
                 highlight = false;
@@ -357,10 +353,12 @@ bool InitSDL()
                     clickedPlayer->SetTile(curTile->getTileId());
                     clickedPlayer->setClicked(false);
                     clicked = false;
+                    players = false;
                 }
             }
 
             GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer);
+            
             SDL_RenderPresent(renderer);
         }
     }
