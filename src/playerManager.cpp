@@ -14,7 +14,6 @@ PlayerManager::PlayerManager(int numPlayers)
 {
     playerSheet = IMG_Load("images/pngsheet.png");
     SDL_FreeSurface(playerSheet);
-    int pngCount = 0;
     for (int i = 0; i < numPlayers; i++)
     {
         Player p;
@@ -34,35 +33,31 @@ SDL_Surface *PlayerManager::getSurface()
     return copy;
 }
 
-void PlayerManager::RenderPlayers(SDL_Renderer *renderer, Tile *tile, PlayerManager pm)
+void PlayerManager::RenderPlayers(SDL_Renderer *renderer, vector<Tile> tiles)
 {
-
-        // cout << "Player Renderer TileX: " << tile->getTileData().tileX << endl;
-    int padding = tile->getTileData().tileH * 0.05;
-    int posX = tile->getTileData().tileX + padding;
-    int posY = tile->getTileData().tileY + padding;
-    int W = tile->getTileData().tileW - 2 * padding;
-    int H = tile->getTileData().tileH - 2 * padding;
-
-    SDL_Rect pngSheetRect = {125, 25, 58, 94};
-    SDL_Rect destplayerRect = {posX, posY, W, H};
-    /*
-    if (getTeam() == "Team1")
-        SDL_SetRenderDrawColor(renderer, 250, 0, 0, 250);
-    else if (getTeam() == "Team2")
+    for (Player &p : playerList)
     {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 250, 250);
-        // cout << getTeam();
+        Tile tile = tiles[p.GetTile()];
+        int padding = tile.getTileData().tileH * 0.05;
+        int posX = tile.getTileData().tileX + padding;
+        int posY = tile.getTileData().tileY + padding;
+        int W = tile.getTileData().tileW - 2 * padding;
+        int H = tile.getTileData().tileH - 2 * padding;
+
+        SDL_Rect pngSheetRect = {125, 25, 58, 94};
+        SDL_Rect destplayerRect = {posX, posY, W, H};
+
+        if (p.getTeam() == "Team1")
+            SDL_SetRenderDrawColor(renderer, 250, 0, 0, 250);
+        else if (p.getTeam() == "Team2")
+        {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 250, 250);
+            // cout << getTeam();
+        }
+
+        SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, getSurface());
+        if (t != NULL)
+            SDL_RenderCopy(renderer, t, &pngSheetRect, &destplayerRect);
+        SDL_DestroyTexture(t);
     }
-
-    SDL_RenderFillRect(renderer, &playerRect);
-    // Set Tile draw Color
-    // SDL_SetRenderDrawColor(renderer, 250,0,0,250);
-    // SDL_RenderDrawRect(renderer, &playerRect);
-    */
-
-    SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, pm.getSurface());
-    if (t != NULL)
-        SDL_RenderCopy(renderer, t, &pngSheetRect, &destplayerRect);
-    SDL_DestroyTexture(t);
 }

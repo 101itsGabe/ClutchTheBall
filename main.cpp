@@ -284,15 +284,9 @@ bool InitSDL()
                     if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                         curTile = &tile;
                 }
-                for (Player &p : PM.getPlayerList())
-                {
-                    if (p.GetTile() == tile.getTileId())
-                    {
-                        p.RenderPlayer(renderer, &tile, PM);
-                        break;
-                    }
-                }
             }
+
+            PM.RenderPlayers(renderer, TM.getTileList());
 
             // cout << curTile->getTileId() << endl;
 

@@ -16,8 +16,7 @@ public:
 
     // void addPlayer(Player );
     // void removePlayer(Player);
-    void PlayerManager::RenderPlayer(SDL_Renderer *renderer, Tile *tile, PlayerManager pm);
-
+    void RenderPlayers(SDL_Renderer *, vector<Tile>);
     vector<Player> &getPlayerList();
     SDL_Surface *getSurface();
 };
