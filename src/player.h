@@ -7,7 +7,7 @@
 
 struct Stats
 {
-    int ThreePointer, TwoPointer;
+    int ThreePointer, TwoPointer, Defense;
 };
 
 struct ImgRect

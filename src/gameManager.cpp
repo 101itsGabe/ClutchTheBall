@@ -20,6 +20,8 @@ GameManager::GameManager(vector<Player> &pl)
 {
     TeamScore1 = 0;
     TeamScore2 = 0;
+    int count1 = 0;
+    int count2 = 0;
     bool team = true;
     SetUpPointVecs();
     for (Player &p : pl)
@@ -28,13 +30,17 @@ GameManager::GameManager(vector<Player> &pl)
         {
             Team1.emplace_back(p);
             p.setTeam("Team1");
+            p.SetTile(T1StartingPoints[count1]);
             team = false;
+            count1++;
         }
         else
         {
             Team2.emplace_back(p);
             p.setTeam("Team2");
+            p.SetTile(T2StartingPoints[count2]);
             team = true;
+            count2++;
         }
     }
 }
@@ -60,6 +66,18 @@ string GameManager::WhichTeam(Player *player)
 
 void GameManager::SetUpPointVecs()
 {
+    T1StartingPoints = {
+        54,
+        68,
+        84,
+    };
+    T2StartingPoints = {66, 50, 80};
+    HoopTile1 = 60;
+    HoopTile2 = 74;
+
+    TwoPointerSpots = {15, 16, 17, 18, 30, 31, 32, 33, 34, 45,
+                       46, 47, 48, 49, 61, 62, 63, 64, 75, 76, 77, 78, 79, 9, 91,
+                       92, 94, 94, 105, 106, 107, 108};
 }
 
 void GameManager::NewGame()
@@ -80,21 +98,19 @@ void GameManager::AddTeamScore2(int s)
 
 int GameManager::check3(int t)
 {
-    auto it = std::find(ThreePointerSpots.begin(), ThreePointerSpots.end(), t);
     auto it2 = std::find(TwoPointerSpots.begin(), TwoPointerSpots.end(), t);
 
-    if (it != ThreePointerSpots.end())
+    if (it2 != TwoPointerSpots.end())
     {
         // std::cout << t << " is found in the vector." << std::endl;
-        return 3;
-    }
-    else if (it2 != TwoPointerSpots.end())
-    {
-        // cout << t << "is found in 2PointVector" << endl;
         return 2;
     }
-
-    return 0;
+    else if (t == HoopTile1 || t == HoopTile2)
+    {
+        return 1;
+    }
+    else
+        return 3;
 }
 
 void GameManager::RenderScore(SDL_Renderer *renderer, TTF_Font *font, int windowWidth, int windowHeight)
@@ -128,27 +144,33 @@ void GameManager::RenderScore(SDL_Renderer *renderer, TTF_Font *font, int window
 }
 
 // returns the number of points
-int GameManager::madeShot(Tile *tile, Player *player)
+int GameManager::madeShot(Tile *tile, Player *player, vector<Player> pList)
 {
     // if true then 3 point shot, false 2 point
+
     bool or32 = false;
     if (player != NULL)
     {
-        auto it = std::find(ThreePointerSpots.begin(), ThreePointerSpots.end(), player->GetTile());
+        // auto it = std::find(ThreePointerSpots.begin(), ThreePointerSpots.end(), player->GetTile());
         auto it2 = std::find(TwoPointerSpots.begin(), TwoPointerSpots.end(), player->GetTile());
 
-        if (it != ThreePointerSpots.end())
-        {
-            cout << "3P: " << *it << endl;
-            or32 = true;
-        }
         if (it2 != TwoPointerSpots.end())
         {
-            cout << "2P: " << *it << endl;
+            cout << "2P: " << *it2 << endl;
             or32 = false;
+        }
+        else
+        {
+            or32 = true;
         }
     }
 
+    Player *dPlayer = ifDefense(*player, pList);
+    int defense = 0;
+    if (dPlayer != NULL)
+    {
+        defense = dPlayer->getStats().Defense;
+    }
     std::mt19937 gen(std::time(0));                  // Initialize with current time as seed
     std::uniform_int_distribution<int> dist(1, 100); // Define a distribution
 
@@ -156,7 +178,9 @@ int GameManager::madeShot(Tile *tile, Player *player)
     cout << r << endl;
     if (or32)
     {
-        if (r < player->getStats().ThreePointer)
+        cout << "Player 3: " << player->getStats().ThreePointer << endl;
+        cout << "Defense: " << defense << endl;
+        if (r < (player->getStats().ThreePointer - defense))
         {
             cout << "GIMMI THREEEEEEE" << endl;
             return 3;
@@ -165,7 +189,8 @@ int GameManager::madeShot(Tile *tile, Player *player)
     }
     else if (!or32)
     {
-        if (r < player->getStats().ThreePointer)
+        cout << "hello?" << endl;
+        if (r < (player->getStats().TwoPointer - defense))
         {
             cout << "AND MPS GOOD for another 2" << endl;
             return 2;
@@ -195,4 +220,24 @@ void GameManager::RenderShotPercent(SDL_Renderer *renderer, TTF_Font *font, int 
         }
         SDL_FreeSurface(surface);
     }
+}
+
+void GameManager::SetCurPlayer(Player &p)
+{
+    curPlayer = &p;
+}
+
+Player *GameManager::ifDefense(Player &player, vector<Player> pList)
+{
+    // Need to implement hoop logic for which team is on which side
+    int pTile = player.GetTile();
+    for (Player &p : pList)
+    {
+        if (p.GetTile() + 1 == pTile || p.GetTile() + 15 == pTile || p.GetTile() - 1 == pTile || p.GetTile() - 15 == pTile)
+        {
+            cout << "DEFENSE" << endl;
+            return &p;
+        }
+    }
+    return NULL;
 }

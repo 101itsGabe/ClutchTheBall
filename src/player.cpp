@@ -8,7 +8,8 @@ Player::Player()
     curTile = 0;
     curClicked = false;
     stats.ThreePointer = 33;
-    stats.TwoPointer = 33;
+    stats.TwoPointer = 66;
+    stats.Defense = 10;
 }
 
 Player::Player(int t)
@@ -16,7 +17,8 @@ Player::Player(int t)
     curTile = t;
     curClicked = false;
     stats.ThreePointer = 33;
-    stats.TwoPointer = 33;
+    stats.TwoPointer = 66;
+    stats.Defense = 10;
 }
 
 void Player::setImgPath(string p)

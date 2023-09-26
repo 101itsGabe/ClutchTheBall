@@ -68,6 +68,7 @@ void renderText(SDL_Renderer *renderer, Tile *tile, TTF_Font *font, int check)
     else if (check == 1)
         tileId = "H";
     else
+
         tileId = to_string(tile->getTileId());
     SDL_Color textColor = {85, 85, 85};
     if (font != NULL)
@@ -155,12 +156,12 @@ bool InitSDL()
     SDL_Surface *image = NULL;
 
     PlayerManager PM(6);
-    GameManager GM(PM.getPlayerList());
+    GameManager GM(*PM.getPlayerList());
 
-        // Window
+    // Window
     int windowWidth, windowHeight;
 
-    vector<Tile>* tiles;
+    vector<Tile> *tiles;
 
     TileManager TM;
     tiles = TM.getTileList();
@@ -227,20 +228,9 @@ bool InitSDL()
         printf("Failed to load image. Error: %s\n", IMG_GetError());
     }
 
-
-
     random_device rd;
     mt19937 eng(rd());
-    int min = 1;
-    int max = 69;
-
-    for (Player &p : PM.getPlayerList())
-    {
-        uniform_int_distribution<> distr1(min, max);
-        int curN = distr1(eng);
-        // cout << "First Player Tile: " << curN << endl;
-        p.SetTile(curN);
-    }
+    int check = 0;
 
     // Show the updated Frame
     SDL_RenderPresent(renderer);
@@ -291,12 +281,13 @@ bool InitSDL()
                 {
                     if (clicked == false)
                     {
-                        for (Player &p : PM.getPlayerList())
+                        for (Player &p : *PM.getPlayerList())
                         {
                             if (p.GetTile() == curTile->getTileId() && p.getClicked() == false)
                             {
                                 clickedPlayer = &p;
                                 clickedPlayer->setClicked(true);
+                                GM.SetCurPlayer(p);
                                 menu = true;
                                 break;
                             }
@@ -305,7 +296,7 @@ bool InitSDL()
                 }
             }
 
-            PM.RenderPlayers(renderer,tiles);
+            PM.RenderPlayers(renderer, tiles);
             if (menu)
             {
                 highlight = false;
@@ -318,12 +309,12 @@ bool InitSDL()
                         if (clickedPlayer->getTeam() == "Team1")
                         {
                             cout << "Clicked Team 1" << endl;
-                            GM.AddTeamScore1(GM.madeShot(curTile, clickedPlayer));
+                            GM.AddTeamScore1(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
                         }
                         else if (clickedPlayer->getTeam() == "Team2")
                         {
                             cout << "Clicked Team 2" << endl;
-                            GM.AddTeamScore2(GM.madeShot(curTile, clickedPlayer));
+                            GM.AddTeamScore2(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
                         }
 
                         clicked = false;
@@ -358,7 +349,7 @@ bool InitSDL()
             }
 
             GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer);
-            
+
             SDL_RenderPresent(renderer);
         }
     }

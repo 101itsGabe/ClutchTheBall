@@ -3,7 +3,6 @@
 #include "tileManager.h"
 #include "tile.h"
 
-
 TileManager::TileManager()
 {
     tileList = new vector<Tile>;
@@ -16,10 +15,10 @@ TileManager::TileManager()
             tileList->emplace_back(row, col, tileList->size());
         }
     }
-    cout << "Done Placing" << endl;
 }
 
-TileManager::~TileManager(){
+TileManager::~TileManager()
+{
     delete tileList;
 }
 
@@ -28,6 +27,7 @@ void TileManager::addTile(Tile &t)
     tileList->emplace_back(t);
 }
 
-vector<Tile>* TileManager::getTileList(){
+vector<Tile> *TileManager::getTileList()
+{
     return tileList;
 }
