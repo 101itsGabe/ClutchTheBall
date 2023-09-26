@@ -5,7 +5,7 @@
 #include <string>
 #include "SDL_ttf.h"
 #include "SDL.h"
-#include <Player.h>
+#include <player.h>
 #include <tile.h>
 
 using namespace std;

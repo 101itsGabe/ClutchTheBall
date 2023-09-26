@@ -198,7 +198,7 @@ int GameManager::madeShot(Tile *tile, Player *player, vector<Player> pList)
 
 void GameManager::RenderShotPercent(SDL_Renderer *renderer, TTF_Font *font, int windowWidth, int windowHeight, Player *p, vector<Player> *pList)
 {
-    SDL_Color color = {0, 150, 30};
+    SDL_Color color = {0, 255, 30};
     if (p != NULL)
     {
 
@@ -215,7 +215,7 @@ void GameManager::RenderShotPercent(SDL_Renderer *renderer, TTF_Font *font, int 
             SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture != NULL)
             {
-                SDL_Rect textRect = {(int)round(windowWidth * 0.89), (int)round(windowHeight * 0.80), (int)round(windowWidth * 0.10), (int)round(windowHeight * 0.08)};
+                SDL_Rect textRect = {(int)round(windowWidth * 0.89), (int)round(windowHeight * 0.90), (int)round(windowWidth * 0.10), (int)round(windowHeight * 0.08)};
                 SDL_RenderCopy(renderer, texture, nullptr, &textRect);
                 SDL_DestroyTexture(texture);
             }

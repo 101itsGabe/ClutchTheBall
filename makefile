@@ -8,9 +8,11 @@ ifeq ($(OS), Windows_NT)
 #Windows Config
 	LDFLAGS = -Lsrc/lib -lSDL2 -lSDL2_ttf -lSDL2_image
 	EXECUTABLE :=$(EXECUTABLE).exe
+	DEL_CMD := del
 else
 #MacOs Config
 	LDFLAGS = $(shell pkg-config --libs sdl2 SDL2_ttf SDL2_image)
+	DEL_CMD := rm
 endif
 
 
@@ -27,4 +29,4 @@ $(EXECUTABLE): $(SRC_FILES)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
-	del $(EXECUTABLE)
+	$(DEL_CMD) $(EXECUTABLE)
