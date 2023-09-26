@@ -7,8 +7,8 @@ Player::Player()
 {
     curTile = 0;
     curClicked = false;
-    stats.ThreePointer = 33;
-    stats.TwoPointer = 66;
+    stats.ThreePointer = 53;
+    stats.TwoPointer = 60;
     stats.Defense = 10;
 }
 
@@ -16,8 +16,8 @@ Player::Player(int t)
 {
     curTile = t;
     curClicked = false;
-    stats.ThreePointer = 33;
-    stats.TwoPointer = 66;
+    stats.ThreePointer = 53;
+    stats.TwoPointer = 60;
     stats.Defense = 10;
 }
 

@@ -61,6 +61,7 @@ void renderText(SDL_Renderer *renderer, Tile *tile, TTF_Font *font, int check)
     int tileY = tile->getTileData().tileY;
 
     string tileId;
+
     if (check == 3)
         tileId = "3P";
     else if (check == 2)
@@ -68,7 +69,6 @@ void renderText(SDL_Renderer *renderer, Tile *tile, TTF_Font *font, int check)
     else if (check == 1)
         tileId = "H";
     else
-
         tileId = to_string(tile->getTileId());
     SDL_Color textColor = {85, 85, 85};
     if (font != NULL)
@@ -93,10 +93,11 @@ void renderText(SDL_Renderer *renderer, Tile *tile, TTF_Font *font, int check)
     }
 }
 
-Menu renderMenu(SDL_Renderer *renderer, TTF_Font *font, Tile *t, int windowWidth, int windowHeight)
+Menu renderMenu(SDL_Renderer *renderer, TTF_Font *font, vector<Tile> *tList, int windowWidth, int windowHeight, Player *p)
 {
     SDL_Rect rect;
     Menu curMenu(windowWidth, windowHeight);
+    curMenu.setData(p, tList, windowWidth);
     rect.x = curMenu.getMenuData().menuX;
     rect.y = curMenu.getMenuData().menuY;
     rect.w = curMenu.getMenuData().menuW;
@@ -228,10 +229,6 @@ bool InitSDL()
         printf("Failed to load image. Error: %s\n", IMG_GetError());
     }
 
-    random_device rd;
-    mt19937 eng(rd());
-    int check = 0;
-
     // Show the updated Frame
     SDL_RenderPresent(renderer);
 
@@ -242,7 +239,7 @@ bool InitSDL()
     bool clicked = false;
     bool menu = false;
     bool highlight = true;
-    bool players = true;
+    bool move = false;
     Player *clickedPlayer = nullptr;
     while (!quit)
     {
@@ -274,7 +271,8 @@ bool InitSDL()
                 }
             }
             // cout << curTile->getTileId() << endl;
-
+            Player &fPlayer = (*PM.getPlayerList())[0];
+            GM.SetBallPlayer(fPlayer);
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
             {
                 if (curTile)
@@ -287,7 +285,6 @@ bool InitSDL()
                             {
                                 clickedPlayer = &p;
                                 clickedPlayer->setClicked(true);
-                                GM.SetCurPlayer(p);
                                 menu = true;
                                 break;
                             }
@@ -296,11 +293,16 @@ bool InitSDL()
                 }
             }
 
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_b)
+            {
+                move = true;
+            }
+
             PM.RenderPlayers(renderer, tiles);
             if (menu)
             {
                 highlight = false;
-                Menu curMenu = renderMenu(renderer, font, curTile, windowWidth, windowHeight);
+                Menu curMenu = renderMenu(renderer, font, TM.getTileList(), windowWidth, windowHeight, clickedPlayer);
                 if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                 {
                     if (curMenu.mouseCheck(mouseX, mouseY) == 1)
@@ -321,8 +323,6 @@ bool InitSDL()
                         menu = false;
                         highlight = true;
                         clickedPlayer->setClicked(false);
-                        if (clickedPlayer != NULL)
-                            GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer);
                     }
 
                     else if (curMenu.mouseCheck(mouseX, mouseY) == 2)
@@ -334,6 +334,16 @@ bool InitSDL()
                         clickedPlayer->setClicked(false);
                     }
                 }
+                if (clickedPlayer != NULL)
+                    GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer, PM.getPlayerList());
+
+                if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    clicked = false;
+                    menu = false;
+                    highlight = true;
+                    clickedPlayer->setClicked(false);
+                }
             }
 
             else if (clicked == true)
@@ -344,11 +354,14 @@ bool InitSDL()
                     clickedPlayer->SetTile(curTile->getTileId());
                     clickedPlayer->setClicked(false);
                     clicked = false;
-                    players = false;
                 }
             }
-
-            GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer);
+            else if (move)
+            {
+                GM.MoveAI(PM.getPlayerList());
+                PM.RenderPlayers(renderer, TM.getTileList());
+                move = false;
+            }
 
             SDL_RenderPresent(renderer);
         }

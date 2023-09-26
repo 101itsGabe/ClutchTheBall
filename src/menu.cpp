@@ -80,3 +80,22 @@ vector<TextData> &Menu::getTextData()
 {
     return textData;
 }
+
+void Menu::setData(Player *p, vector<Tile> *tList, int windowWidth)
+{
+    int pTile = p->GetTile();
+    Tile curTile;
+    for (Tile &t : *tList)
+    {
+        if (t.getTileId() == pTile)
+        {
+            curTile = t;
+            break;
+        }
+    }
+
+    if (curTile.getTileData().tileX > windowWidth / 2)
+        menuData.menuX = windowWidth / 4;
+    else
+        menuData.menuX = windowWidth / 1.5;
+}

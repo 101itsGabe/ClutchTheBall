@@ -1,6 +1,8 @@
 #include "gameManager.h"
 #include <iostream>
 #include <vector>
+#include <climits>
+#include <chrono>
 #include <algorithm>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -165,21 +167,15 @@ int GameManager::madeShot(Tile *tile, Player *player, vector<Player> pList)
         }
     }
 
-    Player *dPlayer = ifDefense(*player, pList);
-    int defense = 0;
-    if (dPlayer != NULL)
-    {
-        defense = dPlayer->getStats().Defense;
-    }
-    std::mt19937 gen(std::time(0));                  // Initialize with current time as seed
-    std::uniform_int_distribution<int> dist(1, 100); // Define a distribution
+    int defense = ifDefense(*player, pList);
+    std::random_device rd;                                                                         // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count() + rd()); // Combine current time with random_device
+    std::uniform_int_distribution<int> dist(1, 100);                                               // Define a distribution
 
     int r = dist(gen); // Generate a random number
-    cout << r << endl;
+    cout << "Random Num: " << r << endl;
     if (or32)
     {
-        cout << "Player 3: " << player->getStats().ThreePointer << endl;
-        cout << "Defense: " << defense << endl;
         if (r < (player->getStats().ThreePointer - defense))
         {
             cout << "GIMMI THREEEEEEE" << endl;
@@ -189,7 +185,6 @@ int GameManager::madeShot(Tile *tile, Player *player, vector<Player> pList)
     }
     else if (!or32)
     {
-        cout << "hello?" << endl;
         if (r < (player->getStats().TwoPointer - defense))
         {
             cout << "AND MPS GOOD for another 2" << endl;
@@ -201,12 +196,19 @@ int GameManager::madeShot(Tile *tile, Player *player, vector<Player> pList)
     return 0;
 }
 
-void GameManager::RenderShotPercent(SDL_Renderer *renderer, TTF_Font *font, int windowWidth, int windowHeight, Player *p)
+void GameManager::RenderShotPercent(SDL_Renderer *renderer, TTF_Font *font, int windowWidth, int windowHeight, Player *p, vector<Player> *pList)
 {
     SDL_Color color = {0, 150, 30};
     if (p != NULL)
     {
-        string chanceText = "Shot %:" + to_string(p->getStats().ThreePointer);
+
+        int defense = ifDefense(*p, *pList);
+        auto it = find(TwoPointerSpots.begin(), TwoPointerSpots.end(), p->GetTile());
+        string chanceText = "Shot: ";
+        if (it != TwoPointerSpots.end())
+            chanceText += to_string(p->getStats().TwoPointer - defense) + "%";
+        else
+            chanceText += to_string(p->getStats().ThreePointer - defense) + "%";
         SDL_Surface *surface = TTF_RenderText_Solid(font, chanceText.c_str(), color);
         if (surface != NULL)
         {
@@ -222,22 +224,81 @@ void GameManager::RenderShotPercent(SDL_Renderer *renderer, TTF_Font *font, int 
     }
 }
 
-void GameManager::SetCurPlayer(Player &p)
+void GameManager::SetBallPlayer(Player &p)
 {
-    curPlayer = &p;
+    ballPlayer = &p;
 }
 
-Player *GameManager::ifDefense(Player &player, vector<Player> pList)
+int GameManager::ifDefense(Player &player, vector<Player> pList)
 {
     // Need to implement hoop logic for which team is on which side
     int pTile = player.GetTile();
+    int closestDefenderDistance = INT_MAX; // Initialize with a large value
+    int closestDefenderDefense = 0;
     for (Player &p : pList)
     {
-        if (p.GetTile() + 1 == pTile || p.GetTile() + 15 == pTile || p.GetTile() - 1 == pTile || p.GetTile() - 15 == pTile)
+        int curTile = p.GetTile();
+        if (p.getTeam() == "Team2")
         {
-            cout << "DEFENSE" << endl;
-            return &p;
+            int temp = p.getStats().Defense;
+            const int numCols = 15;
+            const int numRows = 9;
+
+            int playerRow = pTile / numCols;
+            int playerCol = pTile % numCols;
+            int defenderRow = curTile / numCols;
+            int defenderCol = curTile % numCols;
+
+            int rowDiff = abs(playerRow - defenderRow);
+            int colDiff = abs(playerCol - defenderCol);
+
+            int maxDistance = (numCols - 1) / 2 + (numRows - 1) / 2; // Maximum distance in this grid
+            int defense = maxDistance - (rowDiff + colDiff) + temp;
+            if (rowDiff + colDiff < closestDefenderDistance)
+            {
+                closestDefenderDistance = rowDiff + colDiff;
+                if (closestDefenderDistance == 2)
+                {
+                    cout << "Yeah m8" << endl;
+                    closestDefenderDefense = defense - 5;
+                }
+                else
+                    closestDefenderDefense = defense;
+            }
         }
     }
-    return NULL;
+    if (closestDefenderDistance > 2)
+        return 0;
+    if (closestDefenderDefense <= INT_MAX)
+        return closestDefenderDefense;
+    else
+        return 0;
+}
+
+void GameManager::MoveAI(vector<Player> *pList)
+{
+    Uint32 startTime = SDL_GetTicks();
+    Uint32 lastTime = startTime;
+    const Uint32 interval = 500; // 3 seconds in milliseconds
+    // Check if it's time to call the function
+    while (true)
+    {
+        Uint32 currentTime = SDL_GetTicks();
+
+        // Check if it's time to call the function
+        if (currentTime - lastTime >= interval)
+        {
+            for (Player &p : *pList)
+            {
+                if (p.getTeam() == "Team2")
+                {
+                    cout << p.GetTile() << endl;
+                    p.SetTile(p.GetTile() - 1);
+                }
+            }
+            break;
+
+            lastTime = currentTime; // Update lastTime for the next interval
+        }
+    }
 }

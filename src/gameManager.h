@@ -22,8 +22,8 @@ private:
     vector<int> TwoPointerSpots;
     vector<int> T1StartingPoints;
     vector<int> T2StartingPoints;
-    Player *curPlayer;
-    Player *ifDefense(Player &, vector<Player>);
+    Player *ballPlayer;
+    int ifDefense(Player &, vector<Player>);
 
 public:
     GameManager();
@@ -33,8 +33,9 @@ public:
     void AddTeamScore2(int);
     void SetUpPointVecs();
     void RenderScore(SDL_Renderer *, TTF_Font *, int, int);
-    void RenderShotPercent(SDL_Renderer *, TTF_Font *, int, int, Player *);
-    void SetCurPlayer(Player &);
+    void RenderShotPercent(SDL_Renderer *, TTF_Font *, int, int, Player *, vector<Player> *);
+    void SetBallPlayer(Player &);
+    void MoveAI(vector<Player> *);
 
     int madeShot(Tile *, Player *, vector<Player>);
     int check3(int);
