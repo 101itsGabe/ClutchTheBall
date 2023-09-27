@@ -81,3 +81,20 @@ void PlayerManager::RenderPlayers(SDL_Renderer *renderer, vector<Tile> *tiles)
 
     // SDL_FreeSurface(copy2);
 }
+
+void PlayerManager::SetPlayerTile(Player *player, int t)
+{
+    bool foundPlayer = false;
+    for (Player &p : *playerList)
+    {
+        if (t == p.GetTile())
+        {
+            cout << "Sorry Bud player here" << endl;
+            foundPlayer = true;
+        }
+    }
+    if (!foundPlayer)
+    {
+        player->SetTile(t);
+    }
+}

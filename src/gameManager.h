@@ -36,6 +36,7 @@ public:
     void RenderShotPercent(SDL_Renderer *, TTF_Font *, int, int, Player *, vector<Player> *);
     void SetBallPlayer(Player &);
     void MoveAI(vector<Player> *);
+    void RenderBall(SDL_Renderer *, vector<Tile> *);
 
     int madeShot(Tile *, Player *, vector<Player>);
     int check3(int);

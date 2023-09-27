@@ -19,11 +19,11 @@ public:
     ~PlayerManager();
     PlayerManager(int);
 
-    // void addPlayer(Player );
-    // void removePlayer(Player);
+    void SetPlayerTile(Player *, int);
     void RenderPlayers(SDL_Renderer *, vector<Tile> *);
     vector<Player> *getPlayerList();
     // SDL_Surface& getSurface();
+    bool CheckPlayerTiles();
 };
 
 #endif

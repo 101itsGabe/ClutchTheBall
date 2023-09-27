@@ -248,22 +248,30 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
             int playerCol = pTile % numCols;
             int defenderRow = curTile / numCols;
             int defenderCol = curTile % numCols;
+            int hoop1Row = HoopTile1 / numCols;
+            int hoop1Col = HoopTile1 % numCols;
 
             int rowDiff = abs(playerRow - defenderRow);
             int colDiff = abs(playerCol - defenderCol);
+            int hoopRowDif = abs(hoop1Row - playerRow);
+            int hoopColDiff = abs(hoop1Col - playerCol);
 
             int maxDistance = (numCols - 1) / 2 + (numRows - 1) / 2; // Maximum distance in this grid
             int defense = maxDistance - (rowDiff + colDiff) + temp;
-            if (rowDiff + colDiff < closestDefenderDistance)
+
+            // THIS DONT WORK
+            if (hoopColDiff > 0 && defenderCol > playerCol && defenderCol < hoop1Col)
             {
-                closestDefenderDistance = rowDiff + colDiff;
-                if (closestDefenderDistance == 2)
+                if (rowDiff + colDiff < closestDefenderDistance)
                 {
-                    cout << "Yeah m8" << endl;
-                    closestDefenderDefense = defense - 5;
+                    closestDefenderDistance = rowDiff + colDiff;
+                    if (closestDefenderDistance == 2)
+                    {
+                        closestDefenderDefense = defense / 2;
+                    }
+                    else
+                        closestDefenderDefense = defense;
                 }
-                else
-                    closestDefenderDefense = defense;
             }
         }
     }
@@ -299,6 +307,26 @@ void GameManager::MoveAI(vector<Player> *pList)
             break;
 
             lastTime = currentTime; // Update lastTime for the next interval
+        }
+    }
+}
+
+void GameManager::RenderBall(SDL_Renderer *renderer, vector<Tile> *tList)
+{
+    if (ballPlayer != NULL)
+    {
+        Tile tile = (*tList)[ballPlayer->GetTile()];
+        SDL_Surface *s = IMG_Load("./src/images/ball.png");
+        if (s)
+        {
+            SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
+            if (t)
+            {
+                SDL_Rect imgRect = {146, 14, 62, 66};
+                SDL_Rect destRect = {tile.getTileData().tileX + 5, tile.getTileData().tileY + 5,
+                                     tile.getTileData().tileW / 3, tile.getTileData().tileH / 3};
+                SDL_RenderCopy(renderer, t, &imgRect, &destRect);
+            }
         }
     }
 }

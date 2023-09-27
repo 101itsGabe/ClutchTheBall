@@ -299,6 +299,7 @@ bool InitSDL()
             }
 
             PM.RenderPlayers(renderer, tiles);
+            GM.RenderBall(renderer, tiles);
             if (menu)
             {
                 highlight = false;
@@ -351,7 +352,8 @@ bool InitSDL()
                 highlight = true;
                 if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                 {
-                    clickedPlayer->SetTile(curTile->getTileId());
+                    PM.SetPlayerTile(clickedPlayer, curTile->getTileId());
+                    // clickedPlayer->SetTile(curTile->getTileId());
                     clickedPlayer->setClicked(false);
                     clicked = false;
                 }
