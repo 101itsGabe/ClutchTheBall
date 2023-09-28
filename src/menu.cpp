@@ -27,6 +27,8 @@ int Menu::mouseCheck(int mX, int mY)
                 return 1;
             else if (md.name == "Move")
                 return 2;
+            else if(md.name == "Pass")
+                return 3;
         }
     }
     return 0;
@@ -39,7 +41,7 @@ MenuData Menu::getMenuData()
 
 void Menu::RenderText(SDL_Renderer *renderer, TTF_Font *font)
 {
-    vector<string> textList = {"Shoot", "Move", "Dribble"};
+    vector<string> textList = {"Shoot", "Move", "Pass"};
     int numItems = textList.size();
     int offsetConst = (menuData.menuH * 0.4) / numItems;
     SDL_Color color = {0, 0, 0};

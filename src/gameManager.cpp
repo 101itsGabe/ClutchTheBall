@@ -260,11 +260,14 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
             int defense = maxDistance - (rowDiff + colDiff) + temp;
 
             // THIS DONT WORK
-            if (hoopColDiff > 0 && defenderCol > playerCol && defenderCol < hoop1Col)
+            if (defenderCol < playerCol)
             {
                 if (rowDiff + colDiff < closestDefenderDistance)
                 {
                     closestDefenderDistance = rowDiff + colDiff;
+                    if(hoopRowDif + hoopColDiff < closestDefenderDistance){
+                        closestDefenderDefense = 0;
+                    }
                     if (closestDefenderDistance == 2)
                     {
                         closestDefenderDefense = defense / 2;
@@ -272,6 +275,9 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
                     else
                         closestDefenderDefense = defense;
                 }
+            }
+            else{
+                closestDefenderDefense = 0;
             }
         }
     }
@@ -330,3 +336,9 @@ void GameManager::RenderBall(SDL_Renderer *renderer, vector<Tile> *tList)
         }
     }
 }
+
+
+int GameManager::getBallTile(){
+    return ballPlayer->GetTile();
+}
+

@@ -240,7 +240,9 @@ bool InitSDL()
     bool menu = false;
     bool highlight = true;
     bool move = false;
+    bool pass = false;
     Player *clickedPlayer = nullptr;
+    GM.SetBallPlayer((*PM.getPlayerList())[0]);
     while (!quit)
     {
         while (SDL_PollEvent(&e) != 0)
@@ -266,18 +268,19 @@ bool InitSDL()
                 if (tile.getMouseCheck(mouseX, mouseY) && highlight && !menu)
                 {
                     Highlight(renderer, &tile);
-                    if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                    if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT){
                         curTile = &tile;
+                        break;
+                    }
                 }
             }
-            // cout << curTile->getTileId() << endl;
-            Player &fPlayer = (*PM.getPlayerList())[0];
-            GM.SetBallPlayer(fPlayer);
+
+            GM.RenderBall(renderer, tiles);
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
             {
                 if (curTile)
                 {
-                    if (clicked == false)
+                    if (clicked == false && menu == false && pass == false)
                     {
                         for (Player &p : *PM.getPlayerList())
                         {
@@ -319,6 +322,7 @@ bool InitSDL()
                             cout << "Clicked Team 2" << endl;
                             GM.AddTeamScore2(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
                         }
+                    
 
                         clicked = false;
                         menu = false;
@@ -334,6 +338,16 @@ bool InitSDL()
                         highlight = true;
                         clickedPlayer->setClicked(false);
                     }
+
+                    else if (curMenu.mouseCheck(mouseX, mouseY) == 3 && clickedPlayer->GetTile() == GM.getBallTile())
+                    {
+                        cout << "Pass" << endl;
+                        menu = false;
+                        highlight = true;
+                        pass = true;
+                    }
+
+
                 }
                 if (clickedPlayer != NULL)
                     GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer, PM.getPlayerList());
@@ -347,7 +361,7 @@ bool InitSDL()
                 }
             }
 
-            else if (clicked == true)
+            else if (clicked)
             {
                 highlight = true;
                 if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
@@ -363,6 +377,40 @@ bool InitSDL()
                 GM.MoveAI(PM.getPlayerList());
                 PM.RenderPlayers(renderer, TM.getTileList());
                 move = false;
+            }
+
+            else if(pass){
+                clickedPlayer->setClicked(false);
+                bool playerCheck = false;
+                bool tileCheck = true;
+                menu = false;
+                if(tileCheck){
+                for (Tile &tile : *tiles)
+                {
+                    if (tile.getMouseCheck(mouseX, mouseY) && !menu)
+                    {
+                        if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT){
+                            curTile = &tile;
+                            playerCheck = true;
+                            tileCheck = false;
+                            break;
+                        }
+                    }
+                    
+                }
+                }
+                if(playerCheck){
+                for (Player &p : *PM.getPlayerList())
+                    {
+                     if(curTile && curTile->getTileId() == p.GetTile()){
+                        GM.SetBallPlayer(p);
+                        pass = false;
+                        clickedPlayer = nullptr;
+                        playerCheck = false;
+                     }       
+                }
+                }
+                
             }
 
             SDL_RenderPresent(renderer);

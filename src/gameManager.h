@@ -38,6 +38,7 @@ public:
     void MoveAI(vector<Player> *);
     void RenderBall(SDL_Renderer *, vector<Tile> *);
 
+    int getBallTile();
     int madeShot(Tile *, Player *, vector<Player>);
     int check3(int);
     string WhichTeam(Player *p);
