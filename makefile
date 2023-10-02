@@ -17,7 +17,7 @@ endif
 
 
 #Source Files
-SRC_FILES = main.cpp src/menu.cpp src/gameManager.cpp src/tile.cpp src/player.cpp src/tileManager.cpp src/playerManager.cpp
+SRC_FILES = main.cpp src/menu.cpp src/gameManager.cpp src/tile.cpp src/player.cpp src/tileManager.cpp src/playerManager.cpp src/aiPlayer.cpp
 EXECUTABLE = main
 
 #Platform Exclusivities
