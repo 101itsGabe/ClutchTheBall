@@ -1,10 +1,8 @@
 #include <SDLManager.h>
 
-SDLManager::SDLManager(){
-
+SDLManager::SDLManager()
+{
 }
-
-
 
 bool SDLManager::InitSDL()
 {
@@ -100,6 +98,7 @@ bool SDLManager::InitSDL()
     bool move = false;
     bool pass = false;
     Player *clickedPlayer = nullptr;
+    bool StartUp = false;
     GM.SetBallPlayer((*PM.getPlayerList())[0]);
     while (!quit)
     {
@@ -111,170 +110,191 @@ bool SDLManager::InitSDL()
                 quit = true;
             }
 
-            int mouseX, mouseY;
-            Tile *curTile = nullptr;
-            SDL_GetMouseState(&mouseX, &mouseY);
-            SDL_RenderClear(renderer);
-            renderBackground(renderer, backgroundTexture, windowWidth, windowHeight);
-            GM.RenderScore(renderer, font, windowWidth, windowHeight);
-
-            TM.renderTiles(renderer, windowWidth, windowHeight);
-            GM.renderAllText(renderer, tiles, font);
-
-            for(Tile& tile: *tiles){
-                if (tile.getMouseCheck(mouseX, mouseY) && highlight && !menu)
+            if (StartUp)
+            {
+                SDL_RenderClear(renderer);
+                SDL_Surface *neshaSurface = IMG_Load("./images/shiloh.png");
+                if (neshaSurface)
                 {
-                    Highlight(renderer, &tile);
-                    if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT){
-                        curTile = &tile;
-                        break;
+                    SDL_Texture *shilohTexture = SDL_CreateTextureFromSurface(renderer, neshaSurface);
+                    if (shilohTexture)
+                    {
+                        SDL_Rect rect = {100, 100, 100, 100};
+                        SDL_RenderCopy(renderer, shilohTexture, NULL, &rect);
+                        SDL_DestroyTexture(shilohTexture);
                     }
                 }
+                SDL_FreeSurface(neshaSurface);
+                SDL_RenderPresent(renderer);
             }
-
-            GM.RenderBall(renderer, tiles);
-            if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            else
             {
-                if (curTile)
+                int mouseX, mouseY;
+                Tile *curTile = nullptr;
+                SDL_GetMouseState(&mouseX, &mouseY);
+                SDL_RenderClear(renderer);
+                renderBackground(renderer, backgroundTexture, windowWidth, windowHeight);
+                GM.RenderScore(renderer, font, windowWidth, windowHeight);
+
+                TM.renderTiles(renderer, windowWidth, windowHeight);
+                GM.renderAllText(renderer, tiles, font);
+
+                for (Tile &tile : *tiles)
                 {
-                    if (clicked == false && menu == false && pass == false)
+                    if (tile.getMouseCheck(mouseX, mouseY) && highlight && !menu)
                     {
-                        for (Player &p : *PM.getPlayerList())
+                        Highlight(renderer, &tile);
+                        if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                         {
-                            if (p.GetTile() == curTile->getTileId() && p.getClicked() == false)
+                            curTile = &tile;
+                            break;
+                        }
+                    }
+                }
+
+                GM.RenderBall(renderer, tiles);
+                if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                {
+                    if (curTile)
+                    {
+                        if (clicked == false && menu == false && pass == false)
+                        {
+                            for (Player &p : *PM.getPlayerList())
                             {
-                                clickedPlayer = &p;
-                                clickedPlayer->setClicked(true);
-                                menu = true;
-                                break;
+                                if (p.GetTile() == curTile->getTileId() && p.getClicked() == false)
+                                {
+                                    clickedPlayer = &p;
+                                    clickedPlayer->setClicked(true);
+                                    menu = true;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_b)
-            {
-                move = true;
-            }
-
-            PM.RenderPlayers(renderer, tiles);
-            GM.RenderBall(renderer, tiles);
-            if (menu)
-            {
-                highlight = false;
-                Menu curMenu = renderMenu(renderer, font, TM.getTileList(), windowWidth, windowHeight, clickedPlayer);
-                if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_b)
                 {
-                    if (curMenu.mouseCheck(mouseX, mouseY) == 1)
-                    {
-                        cout << clickedPlayer->getTeam() << endl;
-                        if (clickedPlayer->getTeam() == "Team1")
-                        {
-                            cout << "Clicked Team 1" << endl;
-                            GM.AddTeamScore1(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
-                        }
-                        else if (clickedPlayer->getTeam() == "Team2")
-                        {
-                            cout << "Clicked Team 2" << endl;
-                            GM.AddTeamScore2(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
-                        }
-                    
+                    move = true;
+                }
 
+                PM.RenderPlayers(renderer, tiles);
+                GM.RenderBall(renderer, tiles);
+                if (menu)
+                {
+                    highlight = false;
+                    Menu curMenu = renderMenu(renderer, font, TM.getTileList(), windowWidth, windowHeight, clickedPlayer);
+                    if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                    {
+                        if (curMenu.mouseCheck(mouseX, mouseY) == 1)
+                        {
+                            cout << clickedPlayer->getTeam() << endl;
+                            if (clickedPlayer->getTeam() == "Team1")
+                            {
+                                cout << "Clicked Team 1" << endl;
+                                GM.AddTeamScore1(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
+                            }
+                            else if (clickedPlayer->getTeam() == "Team2")
+                            {
+                                cout << "Clicked Team 2" << endl;
+                                GM.AddTeamScore2(GM.madeShot(curTile, clickedPlayer, *PM.getPlayerList()));
+                            }
+
+                            clicked = false;
+                            menu = false;
+                            highlight = true;
+                            clickedPlayer->setClicked(false);
+                        }
+
+                        else if (curMenu.mouseCheck(mouseX, mouseY) == 2)
+                        {
+                            cout << "MOVE" << endl;
+                            clicked = true;
+                            menu = false;
+                            highlight = true;
+                            clickedPlayer->setClicked(false);
+                        }
+
+                        else if (curMenu.mouseCheck(mouseX, mouseY) == 3 && clickedPlayer->GetTile() == GM.getBallTile())
+                        {
+                            cout << "Pass" << endl;
+                            menu = false;
+                            highlight = true;
+                            pass = true;
+                        }
+                    }
+                    if (clickedPlayer != NULL)
+                        GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer, PM.getPlayerList());
+
+                    if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+                    {
                         clicked = false;
                         menu = false;
                         highlight = true;
                         clickedPlayer->setClicked(false);
                     }
-
-                    else if (curMenu.mouseCheck(mouseX, mouseY) == 2)
-                    {
-                        cout << "MOVE" << endl;
-                        clicked = true;
-                        menu = false;
-                        highlight = true;
-                        clickedPlayer->setClicked(false);
-                    }
-
-                    else if (curMenu.mouseCheck(mouseX, mouseY) == 3 && clickedPlayer->GetTile() == GM.getBallTile())
-                    {
-                        cout << "Pass" << endl;
-                        menu = false;
-                        highlight = true;
-                        pass = true;
-                    }
-
-
                 }
-                if (clickedPlayer != NULL)
-                    GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer, PM.getPlayerList());
 
-                if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+                else if (clicked)
                 {
-                    clicked = false;
-                    menu = false;
                     highlight = true;
-                    clickedPlayer->setClicked(false);
-                }
-            }
-
-            else if (clicked)
-            {
-                highlight = true;
-                if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-                {
-                    PM.SetPlayerTile(clickedPlayer, curTile->getTileId());
-                    // clickedPlayer->SetTile(curTile->getTileId());
-                    clickedPlayer->setClicked(false);
-                    clicked = false;
-                }
-            }
-            else if (move)
-            {
-                GM.MoveAI(PM.getPlayerList());
-                PM.RenderPlayers(renderer, TM.getTileList());
-                move = false;
-            }
-
-            else if(pass){
-                clickedPlayer->setClicked(false);
-                bool playerCheck = false;
-                bool tileCheck = true;
-                menu = false;
-                if(tileCheck){
-                for (Tile &tile : *tiles)
-                {
-                    if (tile.getMouseCheck(mouseX, mouseY) && !menu)
+                    if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                     {
-                        if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT){
-                            curTile = &tile;
-                            playerCheck = true;
-                            tileCheck = false;
-                            break;
+                        PM.SetPlayerTile(clickedPlayer, curTile->getTileId());
+                        // clickedPlayer->SetTile(curTile->getTileId());
+                        clickedPlayer->setClicked(false);
+                        clicked = false;
+                    }
+                }
+                else if (move)
+                {
+                    GM.MoveAI(PM.getPlayerList());
+                    PM.RenderPlayers(renderer, TM.getTileList());
+                    move = false;
+                }
+
+                else if (pass)
+                {
+                    clickedPlayer->setClicked(false);
+                    bool playerCheck = false;
+                    bool tileCheck = true;
+                    menu = false;
+                    if (tileCheck)
+                    {
+                        for (Tile &tile : *tiles)
+                        {
+                            if (tile.getMouseCheck(mouseX, mouseY) && !menu)
+                            {
+                                if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                                {
+                                    curTile = &tile;
+                                    playerCheck = true;
+                                    tileCheck = false;
+                                    break;
+                                }
+                            }
                         }
                     }
-                    
-                }
-                }
-                if(playerCheck){
-                for (Player &p : *PM.getPlayerList())
+                    if (playerCheck)
                     {
-                     if(curTile && curTile->getTileId() == p.GetTile()){
-                        GM.SetBallPlayer(p);
-                        pass = false;
-                        clickedPlayer = nullptr;
-                        playerCheck = false;
-                     }       
+                        for (Player &p : *PM.getPlayerList())
+                        {
+                            if (curTile && curTile->getTileId() == p.GetTile())
+                            {
+                                GM.SetBallPlayer(p);
+                                pass = false;
+                                clickedPlayer = nullptr;
+                                playerCheck = false;
+                            }
+                        }
+                    }
                 }
-                }
-                
-            }
 
-            SDL_RenderPresent(renderer);
+                SDL_RenderPresent(renderer);
+            }
         }
     }
 
-    
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     return true;

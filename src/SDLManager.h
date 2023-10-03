@@ -8,7 +8,7 @@
 #include <vector>
 #include <random>
 #include <ctime>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <SDL2/SDL_image.h>
 #include <menu.h>
 #include "SDL_ttf.h"
@@ -18,13 +18,14 @@
 #include "tileManager.h"
 #include "gameManager.h"
 
-class SDLManager{
+class SDLManager
+{
 
-    public:
+public:
     SDLManager();
     void Highlight(SDL_Renderer *renderer, Tile *tile);
     void renderBackground(SDL_Renderer *renderer, SDL_Texture *texture, int windowWidth, int windoHeight);
-    
+
     Menu renderMenu(SDL_Renderer *renderer, TTF_Font *font, vector<Tile> *tList, int windowWidth, int windowHeight, Player *p);
     bool InitSDL();
 };

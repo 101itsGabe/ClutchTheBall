@@ -266,7 +266,8 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
                 if (rowDiff + colDiff < closestDefenderDistance)
                 {
                     closestDefenderDistance = rowDiff + colDiff;
-                    if(hoopRowDif + hoopColDiff < closestDefenderDistance){
+                    if (hoopRowDif + hoopColDiff < closestDefenderDistance)
+                    {
                         closestDefenderDefense = 0;
                     }
                     if (closestDefenderDistance == 2)
@@ -277,7 +278,8 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
                         closestDefenderDefense = defense;
                 }
             }
-            else{
+            else
+            {
                 closestDefenderDefense = 0;
             }
         }
@@ -338,50 +340,50 @@ void GameManager::RenderBall(SDL_Renderer *renderer, vector<Tile> *tList)
     }
 }
 
-
-int GameManager::getBallTile(){
+int GameManager::getBallTile()
+{
     return ballPlayer->GetTile();
 }
 
+void GameManager::renderAllText(SDL_Renderer *renderer, vector<Tile> *tList, TTF_Font *font)
+{
 
-void GameManager::renderAllText(SDL_Renderer *renderer, vector<Tile> *tList, TTF_Font *font){
-    
-  for(Tile& t: *tList){
-    int tileSize = t.getTileData().tileW;
-    int tileX = t.getTileData().tileX;
-    int tileY = t.getTileData().tileY;
-
-    string tileId;
-    int check = check3(t.getTileId());
-    if (check == 3)
-        tileId = "3P";
-    else if (check == 2)
-        tileId = "2P";
-    else if (check == 1)
-        tileId = "H";
-    else
-        tileId = to_string(t.getTileId());
-    SDL_Color textColor = {85, 85, 85};
-    if (font != NULL)
+    for (Tile &t : *tList)
     {
-        SDL_Surface *textSurface = TTF_RenderText_Solid(font, tileId.c_str(), textColor);
-        if (textSurface != NULL)
-        {
-            SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-            if (textTexture != NULL)
-            {
-                SDL_Rect textRect = {tileX + 16, tileY + 8, tileSize - 40, tileSize - 40};
-                SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
-                const char *rendererError = SDL_GetError();
-                if (strlen(rendererError) > 0)
-                {
-                    cout << rendererError << endl;
-                }
-                SDL_DestroyTexture(textTexture);
-            }
-        }
-        SDL_FreeSurface(textSurface);
-    }
-  }
-}
+        int tileSize = t.getTileData().tileW;
+        int tileX = t.getTileData().tileX;
+        int tileY = t.getTileData().tileY;
 
+        string tileId;
+        int check = check3(t.getTileId());
+        if (check == 3)
+            tileId = "3P";
+        else if (check == 2)
+            tileId = "2P";
+        else if (check == 1)
+            tileId = "H";
+        else
+            tileId = to_string(t.getTileId());
+        SDL_Color textColor = {85, 85, 85};
+        if (font != NULL)
+        {
+            SDL_Surface *textSurface = TTF_RenderText_Solid(font, tileId.c_str(), textColor);
+            if (textSurface != NULL)
+            {
+                SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+                if (textTexture != NULL)
+                {
+                    SDL_Rect textRect = {tileX + 16, tileY + 8, tileSize - 40, tileSize - 40};
+                    SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
+                    const char *rendererError = SDL_GetError();
+                    if (strlen(rendererError) > 0)
+                    {
+                        cout << rendererError << endl;
+                    }
+                    SDL_DestroyTexture(textTexture);
+                }
+            }
+            SDL_FreeSurface(textSurface);
+        }
+    }
+}
