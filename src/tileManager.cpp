@@ -31,3 +31,37 @@ vector<Tile> *TileManager::getTileList()
 {
     return tileList;
 }
+
+void TileManager::renderTiles(SDL_Renderer *renderer, int windowWidth, int windowHeight){
+    
+  for(Tile& t: *tileList){
+    int tileSize = std::min(windowWidth, windowHeight) / 11;
+    int gridWidth = 15 * tileSize; // Total width of the grid
+    int gridHeight = 9 * tileSize; // Total height of the grid
+
+    int middleX = (windowWidth - gridWidth) / 2;   // X-coordinate of the top-left corner
+    int middleY = (windowHeight - gridHeight) / 2; // Y-coordinate of the top-left corner
+
+    int tileX = t.getX() * tileSize + middleX;
+    int tileY = t.getY() * tileSize + middleY;
+    // This is going to calc where the exact tile will go on screen
+    // This might have to be just the pixels like 64 or something
+    t.setCoords(tileX, tileY, tileSize, tileSize); // Set the color for the Tile
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_Rect tileRect = {tileX, tileY, tileSize, tileSize};
+
+    // Render the tile
+    SDL_RenderFillRect(renderer, &tileRect);
+
+    // Border Color
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+
+    SDL_Rect borderRect = {tileX, tileY, tileSize, tileSize};
+
+    // Render the Border
+    SDL_RenderDrawRect(renderer, &borderRect);
+
+    
+  }
+}
+

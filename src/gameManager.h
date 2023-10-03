@@ -6,9 +6,11 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <player.h>
+#include <tile.h>
 #include <playerManager.h>
 #include <random>
 #include <ctime>
+#include <aiPlayer.h>
 
 using namespace std;
 
@@ -37,6 +39,7 @@ public:
     void SetBallPlayer(Player &);
     void MoveAI(vector<Player> *);
     void RenderBall(SDL_Renderer *, vector<Tile> *);
+    void renderAllText(SDL_Renderer *renderer, vector<Tile> *tile, TTF_Font *font);
 
     int getBallTile();
     int madeShot(Tile *, Player *, vector<Player>);

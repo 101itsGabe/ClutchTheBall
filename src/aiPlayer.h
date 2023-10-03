@@ -3,8 +3,11 @@
 
 #include <player.h>
 
-class AiOpponent : public Player
+class AiPlayer : public Player
 {
+    public:
+        AiPlayer();
+        AiPlayer(int);
 };
 
 #endif

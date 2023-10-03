@@ -3,6 +3,8 @@
 
 #include "tile.h"
 #include <vector>
+#include <SDL.h>
+#include <SDL_ttf.h>
 
 
 class TileManager{
@@ -15,6 +17,7 @@ class TileManager{
         ~TileManager();
         void addTile(Tile&);
         void removeTile(Tile*);
+        void renderTiles(SDL_Renderer *renderer, int windowWidth, int windowHeight);
 
         vector<Tile>* getTileList();
 
