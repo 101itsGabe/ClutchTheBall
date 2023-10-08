@@ -4,6 +4,38 @@ SDLManager::SDLManager()
 {
 }
 
+void SDLManager::RenderStart(SDL_Renderer* renderer, int windowWidth, int windowHeight, TTF_Font *font){
+        SDL_RenderClear(renderer);
+        SDL_Surface *neshaSurface = IMG_Load("./src/images/SBG.png");
+            if (neshaSurface)
+                {
+                    SDL_Texture *shilohTexture = SDL_CreateTextureFromSurface(renderer, neshaSurface);
+                    if (shilohTexture)
+                    {
+                        SDL_Rect rect = {0, 0, windowWidth, windowHeight};
+                        SDL_RenderCopy(renderer, shilohTexture, NULL, &rect);
+                        SDL_DestroyTexture(shilohTexture);
+                    }
+                }
+
+        int rW = (windowWidth*0.18);
+        int rH = windowHeight*0.18;
+        int rX = (windowWidth/2) - rW/2;
+        int rY = (windowHeight/2) - rH/2;
+        SDL_Rect startRect = {rX, rY, rW, rH};
+        SDL_Color color={0,0,0};
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font,"Start",color);
+        if(textSurface){
+            SDL_Texture* tt = SDL_CreateTextureFromSurface(renderer,textSurface);
+            if(tt){
+                SDL_RenderCopy(renderer, tt,NULL, &startRect);
+            }
+            SDL_DestroyTexture(tt);
+        }
+        SDL_FreeSurface(textSurface);
+        SDL_FreeSurface(neshaSurface);
+}
+
 bool SDLManager::InitSDL()
 {
     SDL_Window *window = NULL;
@@ -98,13 +130,15 @@ bool SDLManager::InitSDL()
     bool move = false;
     bool pass = false;
     Player *clickedPlayer = nullptr;
-    bool StartUp = false;
+    bool StartUp = true;
+    int mouseX, mouseY;
     GM.SetBallPlayer((*PM.getPlayerList())[0]);
     while (!quit)
     {
         while (SDL_PollEvent(&e) != 0)
         {
             SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+            SDL_GetMouseState(&mouseX, &mouseY);
             if (e.type == SDL_QUIT)
             {
                 quit = true;
@@ -112,26 +146,11 @@ bool SDLManager::InitSDL()
 
             if (StartUp)
             {
-                SDL_RenderClear(renderer);
-                SDL_Surface *neshaSurface = IMG_Load("./images/shiloh.png");
-                if (neshaSurface)
-                {
-                    SDL_Texture *shilohTexture = SDL_CreateTextureFromSurface(renderer, neshaSurface);
-                    if (shilohTexture)
-                    {
-                        SDL_Rect rect = {100, 100, 100, 100};
-                        SDL_RenderCopy(renderer, shilohTexture, NULL, &rect);
-                        SDL_DestroyTexture(shilohTexture);
-                    }
-                }
-                SDL_FreeSurface(neshaSurface);
-                SDL_RenderPresent(renderer);
+                RenderStart(renderer, windowWidth, windowHeight, font);
             }
             else
             {
-                int mouseX, mouseY;
                 Tile *curTile = nullptr;
-                SDL_GetMouseState(&mouseX, &mouseY);
                 SDL_RenderClear(renderer);
                 renderBackground(renderer, backgroundTexture, windowWidth, windowHeight);
                 GM.RenderScore(renderer, font, windowWidth, windowHeight);
@@ -289,9 +308,8 @@ bool SDLManager::InitSDL()
                         }
                     }
                 }
-
-                SDL_RenderPresent(renderer);
             }
+            SDL_RenderPresent(renderer);
         }
     }
 
@@ -335,6 +353,8 @@ Menu SDLManager::renderMenu(SDL_Renderer *renderer, TTF_Font *font, vector<Tile>
 {
     SDL_Rect rect;
     Menu curMenu(windowWidth, windowHeight);
+    vector<string> textList = {"Shoot", "Move", "Pass"};
+    curMenu.setText(textList);
     curMenu.setData(p, tList, windowWidth);
     rect.x = curMenu.getMenuData().menuX;
     rect.y = curMenu.getMenuData().menuY;

@@ -25,6 +25,7 @@ public:
     SDLManager();
     void Highlight(SDL_Renderer *renderer, Tile *tile);
     void renderBackground(SDL_Renderer *renderer, SDL_Texture *texture, int windowWidth, int windoHeight);
+    void RenderStart(SDL_Renderer*,int,int, TTF_Font*);
 
     Menu renderMenu(SDL_Renderer *renderer, TTF_Font *font, vector<Tile> *tList, int windowWidth, int windowHeight, Player *p);
     bool InitSDL();

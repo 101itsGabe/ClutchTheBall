@@ -45,5 +45,6 @@ public:
     void RenderText(SDL_Renderer *, TTF_Font *);
     void RenderMenu(SDL_Renderer *, TTF_Font *);
     void setData(Player *, vector<Tile> *, int);
+    void setText(vector<string>);
 };
 #endif

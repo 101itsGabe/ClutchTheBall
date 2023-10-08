@@ -101,3 +101,9 @@ void Menu::setData(Player *p, vector<Tile> *tList, int windowWidth)
     else
         menuData.menuX = windowWidth / 1.5;
 }
+
+void Menu::setText(vector<string> tlist){
+        for(string& s: tlist){
+            textData.emplace_back(s);
+        }
+}
