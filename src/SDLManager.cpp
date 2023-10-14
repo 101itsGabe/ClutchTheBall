@@ -4,7 +4,7 @@ SDLManager::SDLManager()
 {
 }
 
-void SDLManager::RenderStart(SDL_Renderer* renderer, int windowWidth, int windowHeight, TTF_Font *font){
+Menu SDLManager::RenderStart(SDL_Renderer* renderer, int windowWidth, int windowHeight, TTF_Font *font){
         SDL_RenderClear(renderer);
         SDL_Surface *neshaSurface = IMG_Load("./src/images/SBG.png");
             if (neshaSurface)
@@ -22,18 +22,14 @@ void SDLManager::RenderStart(SDL_Renderer* renderer, int windowWidth, int window
         int rH = windowHeight*0.18;
         int rX = (windowWidth/2) - rW/2;
         int rY = (windowHeight/2) - rH/2;
-        SDL_Rect startRect = {rX, rY, rW, rH};
-        SDL_Color color={0,0,0};
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font,"Start",color);
-        if(textSurface){
-            SDL_Texture* tt = SDL_CreateTextureFromSurface(renderer,textSurface);
-            if(tt){
-                SDL_RenderCopy(renderer, tt,NULL, &startRect);
-            }
-            SDL_DestroyTexture(tt);
-        }
-        SDL_FreeSurface(textSurface);
-        SDL_FreeSurface(neshaSurface);
+
+        Menu StartMenu(windowWidth, windowHeight);
+        vector<string> text = {"Start"};
+        StartMenu.setText(text);
+        StartMenu.RenderText(renderer, font);
+
+       return StartMenu;
+
 }
 
 bool SDLManager::InitSDL()
@@ -146,7 +142,12 @@ bool SDLManager::InitSDL()
 
             if (StartUp)
             {
-                RenderStart(renderer, windowWidth, windowHeight, font);
+                Menu startMenu = RenderStart(renderer, windowWidth, windowHeight, font);
+                if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                {
+                    if(startMenu.mouseCheck(mouseX, mouseY) == "Start")
+                        StartUp = false;
+                }
             }
             else
             {
@@ -203,9 +204,11 @@ bool SDLManager::InitSDL()
                 {
                     highlight = false;
                     Menu curMenu = renderMenu(renderer, font, TM.getTileList(), windowWidth, windowHeight, clickedPlayer);
+                    
                     if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                     {
-                        if (curMenu.mouseCheck(mouseX, mouseY) == 1)
+                        
+                        if (curMenu.mouseCheck(mouseX, mouseY) == "Shoot")
                         {
                             cout << clickedPlayer->getTeam() << endl;
                             if (clickedPlayer->getTeam() == "Team1")
@@ -225,7 +228,7 @@ bool SDLManager::InitSDL()
                             clickedPlayer->setClicked(false);
                         }
 
-                        else if (curMenu.mouseCheck(mouseX, mouseY) == 2)
+                        else if (curMenu.mouseCheck(mouseX, mouseY) == "Move")
                         {
                             cout << "MOVE" << endl;
                             clicked = true;
@@ -234,13 +237,18 @@ bool SDLManager::InitSDL()
                             clickedPlayer->setClicked(false);
                         }
 
-                        else if (curMenu.mouseCheck(mouseX, mouseY) == 3 && clickedPlayer->GetTile() == GM.getBallTile())
+                        else if (curMenu.mouseCheck(mouseX, mouseY) == "Pass" && clickedPlayer->GetTile() == GM.getBallTile())
                         {
                             cout << "Pass" << endl;
                             menu = false;
                             highlight = true;
                             pass = true;
                         }
+                        else
+                        {
+                            cout << "Null" << endl;
+                        }
+
                     }
                     if (clickedPlayer != NULL)
                         GM.RenderShotPercent(renderer, font, windowWidth, windowHeight, clickedPlayer, PM.getPlayerList());
@@ -365,4 +373,8 @@ Menu SDLManager::renderMenu(SDL_Renderer *renderer, TTF_Font *font, vector<Tile>
     SDL_RenderFillRect(renderer, &rect);
     curMenu.RenderText(renderer, font);
     return curMenu;
+}
+
+bool SDLManager::checkStart(int mx, int my){
+    
 }

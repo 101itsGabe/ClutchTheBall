@@ -28,6 +28,7 @@ private:
     vector<int> T2StartingPoints;
     Player *ballPlayer;
     int ifDefense(Player &, vector<Player>);
+    bool team1turn;
 
 public:
     GameManager();
@@ -42,6 +43,7 @@ public:
     void MoveAI(vector<Player> *);
     void RenderBall(SDL_Renderer *, vector<Tile> *);
     void renderAllText(SDL_Renderer *renderer, vector<Tile> *tile, TTF_Font *font);
+    void setTurn(bool);
 
     int getBallTile();
     int madeShot(Tile *, Player *, vector<Player>);

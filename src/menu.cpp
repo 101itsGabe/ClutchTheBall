@@ -17,21 +17,16 @@ Menu::Menu(int windowWidth, int windowHeight)
     menuData.menuH = windowHeight * 0.40;
 }
 
-int Menu::mouseCheck(int mX, int mY)
+string Menu::mouseCheck(int mX, int mY)
 {
     for (TextData &md : textData)
     {
         if (md.menuX < mX && md.menuY < mY && (md.menuW + md.menuX) > mX && (md.menuH + md.menuY) > mY)
         {
-            if (md.name == "Shoot")
-                return 1;
-            else if (md.name == "Move")
-                return 2;
-            else if(md.name == "Pass")
-                return 3;
+            return md.name;
         }
     }
-    return 0;
+    return "";
 }
 
 MenuData Menu::getMenuData()
@@ -41,11 +36,11 @@ MenuData Menu::getMenuData()
 
 void Menu::RenderText(SDL_Renderer *renderer, TTF_Font *font)
 {
-    vector<string> textList = {"Shoot", "Move", "Pass"};
-    int numItems = textList.size();
+    //vector<string> textList = {"Shoot", "Move", "Pass"};
+    int numItems = menuText.size();
     int offsetConst = (menuData.menuH * 0.4) / numItems;
     SDL_Color color = {0, 0, 0};
-    for (string &text : textList)
+    for (string &text : menuText)
     {
         if (font != NULL)
         {
@@ -56,18 +51,18 @@ void Menu::RenderText(SDL_Renderer *renderer, TTF_Font *font)
                 if (textTexture != NULL)
                 {
                     SDL_Rect textRect;
-                    if (textList[0] == text)
-                        textRect = {menuData.menuX, menuData.menuY, menuData.menuW / 2, (int)((menuData.menuH / 2) / textList.size())};
+                    if (menuText[0] == text)
+                        textRect = {menuData.menuX, menuData.menuY, menuData.menuW / 2, (int)((menuData.menuH / 2) / menuText.size())};
                     else
-                        textRect = {menuData.menuX, menuData.menuY + offsetConst, menuData.menuW / 2, (int)((menuData.menuH / 2) / textList.size())};
-
+                        textRect = {menuData.menuX, menuData.menuY + offsetConst, menuData.menuW / 2, (int)((menuData.menuH / 2) / menuText.size())};
+                    
                     TextData curText = {text, textRect.x, textRect.y, textRect.w, textRect.h};
                     textData.emplace_back(curText);
                     SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
                     const char *rendererError = SDL_GetError();
                     if (strlen(rendererError) > 0)
                     {
-                        cout << rendererError << endl;
+                        cout << SDL_GetError() << endl;
                     }
                     SDL_FreeSurface(textSurface);
                     SDL_DestroyTexture(textTexture);
@@ -76,6 +71,7 @@ void Menu::RenderText(SDL_Renderer *renderer, TTF_Font *font)
             }
         }
     }
+
 }
 
 vector<TextData> &Menu::getTextData()
@@ -104,6 +100,6 @@ void Menu::setData(Player *p, vector<Tile> *tList, int windowWidth)
 
 void Menu::setText(vector<string> tlist){
         for(string& s: tlist){
-            textData.emplace_back(s);
+            menuText.emplace_back(s);
         }
 }

@@ -387,3 +387,8 @@ void GameManager::renderAllText(SDL_Renderer *renderer, vector<Tile> *tList, TTF
         }
     }
 }
+
+
+void GameManager::setTurn(bool t){
+    team1turn = t;
+}

@@ -33,12 +33,13 @@ private:
     bool isMouse;
     MenuData menuData;
     vector<TextData> textData;
+    vector<string> menuText;
 
 public:
     Menu();
     Menu(int, int);
 
-    int mouseCheck(int, int);
+    string mouseCheck(int, int);
     MenuData getMenuData();
     vector<TextData> &getTextData();
 
