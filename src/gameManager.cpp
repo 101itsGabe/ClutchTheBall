@@ -307,7 +307,7 @@ void GameManager::MoveAI(vector<Player> *pList)
         else
             Team2.emplace_back(p);
     }
-    vector<Player> checkedPlayers;
+    vector<int> checkedPlayerTiles;
     for (Player &p1 : Team1)
     {
         int closestPlayerTile = -1; // Initialize to an invalid value
@@ -321,16 +321,18 @@ void GameManager::MoveAI(vector<Player> *pList)
 
             if (distance < prevdistance)
             {
-                if (checkedPlayers.empty())
+                if (checkedPlayerTiles.empty())
                 {
                     closestPlayerTile = p2Tile;
                     prevdistance = distance;
                 }
                 else
                 {
-                    for (Player &p : checkedPlayers)
+                    for (int &t : checkedPlayerTiles)
                     {
-                        if (p.GetTile() != p2Tile)
+                        cout << "curDistance: " << distance << endl;
+                        cout << "prevDistance: " << distance << endl;
+                        if (distance < prevdistance && find(checkedPlayerTiles.begin(), checkedPlayerTiles.end(), p2Tile) == checkedPlayerTiles.end())
                         {
                             closestPlayerTile = p2Tile;
                             prevdistance = distance;
@@ -346,7 +348,7 @@ void GameManager::MoveAI(vector<Player> *pList)
             {
                 if (closestPlayerTile == p.GetTile())
                 {
-                    checkedPlayers.emplace_back(p);
+                    checkedPlayerTiles.emplace_back(p.GetTile());
                     break;
                 }
             }
@@ -354,7 +356,7 @@ void GameManager::MoveAI(vector<Player> *pList)
             cout << "p1tile outside of loop: ";
             cout << p1.GetTile() << endl;
             cout << "ClosestPlayerTile: " << closestPlayerTile << endl;
-            cout << "Distance: " << prevdistance << endl;
+            cout << "prevDistance: " << prevdistance << endl;
         }
     }
     // If Player 1 is fath
@@ -416,6 +418,8 @@ void GameManager::renderAllText(SDL_Renderer *renderer, vector<Tile> *tList, TTF
 
         string tileId;
         int check = check3(t.getTileId());
+
+        /*
         if (check == 3)
             tileId = "3P";
         else if (check == 2)
@@ -423,7 +427,8 @@ void GameManager::renderAllText(SDL_Renderer *renderer, vector<Tile> *tList, TTF
         else if (check == 1)
             tileId = "H";
         else
-            tileId = to_string(t.getTileId());
+        */
+        tileId = to_string(t.getTileId());
         SDL_Color textColor = {85, 85, 85};
         if (font != NULL)
         {
