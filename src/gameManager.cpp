@@ -238,7 +238,7 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
     int closestDefenderDefense = 0;
     for (Player &p : pList)
     {
-        int curTile = p.GetTile();
+        int defTile = p.GetTile();
         if (p.getTeam() == "Team2")
         {
             int temp = p.getStats().Defense;
@@ -247,8 +247,8 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
 
             int playerRow = pTile / numCols;
             int playerCol = pTile % numCols;
-            int defenderRow = curTile / numCols;
-            int defenderCol = curTile % numCols;
+            int defenderRow = defTile / numCols;
+            int defenderCol = defTile % numCols;
             int hoop1Row = HoopTile1 / numCols;
             int hoop1Col = HoopTile1 % numCols;
 
@@ -260,7 +260,6 @@ int GameManager::ifDefense(Player &player, vector<Player> pList)
             int maxDistance = (numCols - 1) / 2 + (numRows - 1) / 2; // Maximum distance in this grid
             int defense = maxDistance - (rowDiff + colDiff) + temp;
 
-            // THIS DONT WORK
             if (defenderCol < playerCol)
             {
                 if (rowDiff + colDiff < closestDefenderDistance)
@@ -298,6 +297,67 @@ void GameManager::MoveAI(vector<Player> *pList)
     Uint32 lastTime = startTime;
     const Uint32 interval = 500; // 3 seconds in milliseconds
     // Check if it's time to call the function
+
+    Team1.clear();
+    Team2.clear();
+    for (Player &p : *pList)
+    {
+        if (p.getTeam() == "Team1")
+            Team1.emplace_back(p);
+        else
+            Team2.emplace_back(p);
+    }
+    vector<Player> checkedPlayers;
+    for (Player &p1 : Team1)
+    {
+        int closestPlayerTile = -1; // Initialize to an invalid value
+        int prevdistance = INT_MAX; // Initialize to a large value
+
+        for (Player &p2 : Team2)
+        {
+            int p1Tile = p1.GetTile();
+            int p2Tile = p2.GetTile();
+            int distance = calculateDistance(p1Tile, p2Tile);
+
+            if (distance < prevdistance)
+            {
+                if (checkedPlayers.empty())
+                {
+                    closestPlayerTile = p2Tile;
+                    prevdistance = distance;
+                }
+                else
+                {
+                    for (Player &p : checkedPlayers)
+                    {
+                        if (p.GetTile() != p2Tile)
+                        {
+                            closestPlayerTile = p2Tile;
+                            prevdistance = distance;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (closestPlayerTile != -1)
+        {
+            for (Player &p : Team2)
+            {
+                if (closestPlayerTile == p.GetTile())
+                {
+                    checkedPlayers.emplace_back(p);
+                    break;
+                }
+            }
+            // For each closest player move to the best spot
+            cout << "p1tile outside of loop: ";
+            cout << p1.GetTile() << endl;
+            cout << "ClosestPlayerTile: " << closestPlayerTile << endl;
+            cout << "Distance: " << prevdistance << endl;
+        }
+    }
+    // If Player 1 is fath
     while (true)
     {
         Uint32 currentTime = SDL_GetTicks();
@@ -388,7 +448,26 @@ void GameManager::renderAllText(SDL_Renderer *renderer, vector<Tile> *tList, TTF
     }
 }
 
-
-void GameManager::setTurn(bool t){
+void GameManager::setTurn(bool t)
+{
     team1turn = t;
+}
+
+int GameManager::calculateDistance(int p1Tile, int p2Tile)
+{
+    const int numCols = 15;
+    const int numRows = 9;
+
+    int playerRow = p1Tile / numCols;
+    int playerCol = p1Tile % numCols;
+
+    int defenderRow = p2Tile / numCols;
+    int defenderCol = p2Tile % numCols;
+
+    int rowDiff = abs(playerRow - defenderRow);
+    int colDiff = abs(playerCol - defenderCol);
+
+    int distance = rowDiff + colDiff;
+
+    return distance;
 }

@@ -29,6 +29,8 @@ private:
     Player *ballPlayer;
     int ifDefense(Player &, vector<Player>);
     bool team1turn;
+    void SetUpPointVecs();
+    int calculateDistance(int, int);
 
 public:
     GameManager();
@@ -36,7 +38,7 @@ public:
     void NewGame();
     void AddTeamScore1(int);
     void AddTeamScore2(int);
-    void SetUpPointVecs();
+
     void RenderScore(SDL_Renderer *, TTF_Font *, int, int);
     void RenderShotPercent(SDL_Renderer *, TTF_Font *, int, int, Player *, vector<Player> *);
     void SetBallPlayer(Player &);
